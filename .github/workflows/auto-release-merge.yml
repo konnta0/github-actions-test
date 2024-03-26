@@ -16,8 +16,7 @@ jobs:
         id: branch_list
         run: |
           list=$(echo "${{ vars.MERGE_BRANCHES }}" | awk NF | tr '\n' ',')
-          list="\"${list%?}\""
-          echo $list
+
           echo "branch_list=[ $list ]" >> $GITHUB_OUTPUT
 
   merge-release-branches:
@@ -26,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        value: ${{ needs.get-branch-list.outputs.branch_list }}
+        value: ${{ fromJson(needs.get-branch-list.outputs.branch_list) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
