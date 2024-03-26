@@ -17,7 +17,7 @@ jobs:
         run: |
           # git fetch
           # temp_list=$(git branch -a | grep remotes/origin/release/ | sed s@remotes/origin/release/@\"@ | sed s/$/\",/ | sort )
-          list=$(echo ${{ vars.MERGE_BRANCHES }} | tr '\n' ',' )
+          list=$(echo '${{ vars.MERGE_BRANCHES }}' | tr '\n' ',' )
           echo "branch_list=[ $list ]" >> $GITHUB_OUTPUT
 
   merge-release-branches:
