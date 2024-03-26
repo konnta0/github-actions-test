@@ -7,30 +7,27 @@ on:
   workflow_dispatch: 
     
 jobs:
-  # get-branch-list:
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     branch_list: ${{ steps.branch_list.outputs.release_list }}
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
-      
-  #     - name: Release branch list
-  #       id: branch_list
-  #       run: |
-  #         git fetch
-  #         temp_list=$(git branch -a | grep remotes/origin/release/ | sed s@remotes/origin/release/@\"@ | sed s/$/\",/ | sort )
-  #         list=$(echo $temp_list | sed s/,$// )
-  #         echo "release_list=[ $list ]" >> $GITHUB_OUTPUT
+  get-branch-list:
+    runs-on: ubuntu-latest
+    outputs:
+      branch_list: ${{ steps.branch_list.outputs.branch_list }}
+    steps:
+      - name: Create branch list
+        id: branch_list
+        run: |
+          # git fetch
+          # temp_list=$(git branch -a | grep remotes/origin/release/ | sed s@remotes/origin/release/@\"@ | sed s/$/\",/ | sort )
+          list=$(echo ${{ env.MERGE_BRANCHES }} | tr '\n' ',' )
+          echo "branch_list=[ $list ]" >> $GITHUB_OUTPUT
 
   merge-release-branches:
-    # needs: get-branch-list
+    needs: get-branch-list
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        value: ${{ split(env.MERGE_BRANCHES, '\n') }}
+        value: ${{ fromJson(needs.get-branch-list.outputs.branch_list) }}
     steps:
       # - name: Current branch version
       #   id: current_version
