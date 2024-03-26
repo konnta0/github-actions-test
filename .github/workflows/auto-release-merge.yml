@@ -16,6 +16,7 @@ jobs:
         id: branch_list
         run: |
           list=$(echo "${{ vars.MERGE_BRANCHES }}" | tr '\n' ',' | sed 's/,$//')
+          echo $list
           echo "branch_list=[ $list ]" >> $GITHUB_OUTPUT
 
   merge-release-branches:
