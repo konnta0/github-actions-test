@@ -20,7 +20,8 @@ jobs:
           git config --global user.name "GitHub Action"
       - name: Merge branches in sequence
         run: |
-          branches=(${{ vars.MERGE_BRANCHES }})
+          branches_string="${{ vars.MERGE_BRANCHES }}"
+          IFS=$'\n' branches=($branches_string) # parse branches
           for ((i = 0; i < ${#branches[@]} - 1; i++)); do
             current="${branches[i]}"
             next="${branches[i+1]}"
