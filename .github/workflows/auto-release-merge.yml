@@ -5,7 +5,7 @@ on:
     branches:
       - release/*
   workflow_dispatch: 
-    
+
 jobs:
   merge-branches:
     runs-on: ubuntu-latest
@@ -21,6 +21,7 @@ jobs:
       - name: Merge branches in sequence
         run: |
           branches_string="${{ vars.MERGE_BRANCHES }}"
+          branches_string="${branches_string//' '/}"  # remove unwanted spaces
           IFS=$'\n' branches=($branches_string)
           for ((i = 0; i < ${#branches[@]} - 1; i++)); do
             current="${branches[i]}"
