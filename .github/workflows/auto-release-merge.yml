@@ -15,7 +15,8 @@ jobs:
       - name: Create branch list
         id: branch_list
         run: |
-          list=$(echo "${{ vars.MERGE_BRANCHES }}" | tr '\n' ' ' | sed -e 's/release/\\"release/g' -e 's/$/\\"/' -e 's/ /\\", \\"/g')
+          sanitized=$(echo "${{ vars.MERGE_BRANCHES }}" | tr -d ',\"')
+          list=$(echo "$sanitized" | tr '\n' ' ' | sed -e 's/release/\\"release/g' -e 's/$/\\"/' -e 's/ /\\", \\"/g')
           echo $list
           echo "branch_list=[ $list ]" >> $GITHUB_OUTPUT
 
