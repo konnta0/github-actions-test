@@ -15,9 +15,7 @@ jobs:
       - name: Create branch list
         id: branch_list
         run: |
-          # git fetch
-          # temp_list=$(git branch -a | grep remotes/origin/release/ | sed s@remotes/origin/release/@\"@ | sed s/$/\",/ | sort )
-          list=$(echo '${{ vars.MERGE_BRANCHES }}' | tr '\n' ',' )
+          list=$(echo "${{ vars.MERGE_BRANCHES }}" | tr '\n' ',' | sed 's/,$//')
           echo "branch_list=[ $list ]" >> $GITHUB_OUTPUT
 
   merge-release-branches:
@@ -28,26 +26,17 @@ jobs:
       matrix:
         value: ${{ fromJson(needs.get-branch-list.outputs.branch_list) }}
     steps:
-      # - name: Current branch version
-      #   id: current_version
-      #   run: |
-      #     version=$(echo $GITHUB_REF_NAME | sed s@release/@@ )
-      #     echo "value=$version" >> $GITHUB_OUTPUT
-
       - name: Checkout
-        # if: matrix.value > steps.current_version.outputs.value
         uses: actions/checkout@v3
         with:
           fetch-depth: '0'
 
       - name: Set e-mail and username
-        # if: matrix.value > steps.current_version.outputs.value
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Action"
         
       - name: Merge branch
-        # if: matrix.value > steps.current_version.outputs.value
         run: |
           git fetch origin release/${{ matrix.value }}
           git checkout release/${{ matrix.value }}
