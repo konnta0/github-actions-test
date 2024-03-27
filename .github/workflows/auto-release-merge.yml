@@ -20,15 +20,12 @@ jobs:
           git config --global user.name "GitHub Action"
       - name: Merge branches in sequence
         run: |
-          MERGE_BRANCHES="${{ vars.MERGE_BRANCHES }}"
-          MERGE_BRANCHES=$(echo $MERGE_BRANCHES | tr -d '\n' | tr -d ' ' | tr -d '"' | tr -d '[' | tr -d ']')
-          IFS=','
-          read -ra branches <<< "${MERGE_BRANCHES}"
-          for (( i=0; i<${#branches[@]}-1; i++))
-          do
+          branches_string="${{ vars.MERGE_BRANCHES }}"
+          IFS=',' read -ra branches <<< "$branches_string"  
+          for ((i = 0; i < ${#branches[@]} - 1; i++)); do
             current="${branches[i]}"
             next="${branches[i+1]}"
-
+            
             echo "Merging $current into $next"
             
             git fetch origin "$next"
