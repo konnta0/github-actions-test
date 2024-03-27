@@ -26,10 +26,10 @@ jobs:
             current="${branches[i]}"
             next="${branches[i+1]}"
             
-            echo "Merging $current into $next"
+            echo "------------ Merging $current into $next ------------"
             git fetch origin "$current"
             git fetch origin "$next"
             git checkout "$next"
-            git merge origin/"$current" || { echo "Merging failed, stopping..."; exit 1; }
+            git merge origin/"$current" || { echo "------------ Merging failed, stopping... ------------"; exit 1; }
             git push origin "$next"
           done
