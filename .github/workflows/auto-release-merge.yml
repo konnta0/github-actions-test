@@ -20,7 +20,6 @@ jobs:
           git config --global user.name "GitHub Action"
       - name: Merge branches in sequence
         run: |
-          git branch -a 
           branches_string="${{ vars.MERGE_BRANCHES }}"
           IFS=',' read -ra branches <<< "$branches_string"  
           for ((i = 0; i < ${#branches[@]} - 1; i++)); do
@@ -31,6 +30,6 @@ jobs:
             git fetch origin "$current"
             git fetch origin "$next"
             git checkout "$next"
-            git merge "$current" || { echo "Merging failed, stopping..."; exit 1; }
+            git merge origin/"$current" || { echo "Merging failed, stopping..."; exit 1; }
             git push origin "$next"
           done
