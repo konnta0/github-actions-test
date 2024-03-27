@@ -1,4 +1,4 @@
-name: Auto Merge Releases
+name: Auto Merge branches
 
 on:
   push:
