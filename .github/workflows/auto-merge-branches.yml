@@ -10,7 +10,7 @@ jobs:
   merge-branches:
     runs-on: ubuntu-latest
     outputs:
-      confilct_files: ${{ steps.merge-branches.outputs.conflict_files }}
+      conflict_files: ${{ steps.merge-branches.outputs.conflict_files }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -37,9 +37,9 @@ jobs:
             if ! git merge origin/"$current"; then
               echo "------------ Merging failed, $current into $next ------------"
               echo "------------ Conflict Files ------------"
-              conflict_files=$(git ls-files -u | cut -f 2 | sort -u)
-              echo "$conflict_files"
-              echo "conflict_files=$conflict_files" >> $GITHUB_OUTPUT
+              IFS=$'\n' read -r -a conflict_files_array <<< "$(git ls-files -u | cut -f 2 | sort -u)"
+              conflict_files_csv=$(IFS=','; echo "${conflict_files_array[*]}")
+              echo "conflict_files=$current into $next,$conflict_files_csv" >> $GITHUB_ENV
               exit 1
             fi
             git push origin "$next"
@@ -53,5 +53,7 @@ jobs:
       - name: echo failed message
         run: |
           echo "Merging failed, please resolve conflicts and try again"
-          echo "------------ Conflict Files ------------"
-          echo "${{ needs.merge-branches.outputs.confilct_files }}"
+          IFS=',' read -r -a conflict_files <<< "${{ needs.merge-branches.outputs.conflict_files }}"
+          for file in "${conflict_files[@]}"; do
+            echo "$file"
+          done
