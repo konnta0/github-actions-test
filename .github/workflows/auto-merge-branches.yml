@@ -39,7 +39,7 @@ jobs:
               echo "------------ Conflict Files ------------"
               IFS=$'\n' read -r -a conflict_files_array <<< "$(git ls-files -u | cut -f 2 | sort -u)"
               conflict_files_csv=$(IFS=','; echo "${conflict_files_array[*]}")
-              echo "conflict_files=$current into $next,$conflict_files_csv" >> $GITHUB_ENV
+              echo "conflict_files=\"$current into $next,$conflict_files_csv\"" >> $GITHUB_ENV
               exit 1
             fi
             git push origin "$next"
