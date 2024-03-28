@@ -10,7 +10,7 @@ jobs:
   merge-branches:
     runs-on: ubuntu-latest
     outputs:
-      confilct-files: ${{ steps.merge-branches.outputs.conflict-files }}
+      confilct_files: ${{ steps.merge-branches.outputs.conflict_files }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -38,6 +38,7 @@ jobs:
               echo "------------ Merging failed, $current into $next ------------"
               echo "------------ Conflict Files ------------"
               conflict_files=$(git ls-files -u | cut -f 2 | sort -u)
+              echo "$conflict_files"
               echo "conflict_files=$conflict_files" >> $GITHUB_OUTPUT
               exit 1
             fi
@@ -52,4 +53,4 @@ jobs:
       - name: echo failed message
         run: |
           echo "Merging failed, please resolve conflicts and try again"
-          echo "Conflict files: ${{ needs.merge-branches.outputs.conflict_files }}"
+            echo "Conflict files: ${{ needs.merge-branches.outputs.confilct_files }}"
