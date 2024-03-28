@@ -37,7 +37,8 @@ jobs:
             if ! git merge origin/"$current"; then
               echo "------------ Merging failed, $current into $next ------------"
               echo "------------ Conflict Files ------------"
-              echo "conflict-files=$(git ls-files -u | cut -f 2 | sort -u)" >> $GITHUB_OUTPUT
+              conflict_files=$(git ls-files -u | cut -f 2 | sort -u)
+              echo "conflict_files=$conflict_files" >> $GITHUB_OUTPUT
               exit 1
             fi
             git push origin "$next"
@@ -51,4 +52,4 @@ jobs:
       - name: echo failed message
         run: |
           echo "Merging failed, please resolve conflicts and try again"
-          echo "Conflict files: ${{ needs.merge-branches.outputs.conflict-files }}"
+          echo "Conflict files: ${{ needs.merge-branches.outputs.conflict_files }}"
