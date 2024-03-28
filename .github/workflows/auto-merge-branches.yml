@@ -39,9 +39,10 @@ jobs:
               echo "------------ Merging failed, $current into $next ------------"
               echo "------------ Conflict Files ------------"
 
-              echo "conflict_branches=$current->$next" >> $GITHUB_ENV
+              echo "conflict_branches=\"$current into $next\"" >> $GITHUB_ENV
               IFS=$'\n' read -r -a conflict_files_array <<< "$(git ls-files -u | cut -f 2 | sort -u)"
               conflict_files=$(IFS=','; echo "${conflict_files_array[*]}")
+              echo "$conflict_files"
               echo "conflict_files=$conflict_files" >> $GITHUB_ENV
               exit 1
             fi
