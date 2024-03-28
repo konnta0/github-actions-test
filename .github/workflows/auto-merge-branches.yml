@@ -53,4 +53,5 @@ jobs:
       - name: echo failed message
         run: |
           echo "Merging failed, please resolve conflicts and try again"
-            echo "Conflict files: ${{ needs.merge-branches.outputs.confilct_files }}"
+          echo "------------ Conflict Files ------------"
+          echo "${{ needs.merge-branches.outputs.confilct_files }}"
