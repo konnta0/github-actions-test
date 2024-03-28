@@ -37,7 +37,7 @@ jobs:
             if ! git merge origin/"$current"; then
               echo "------------ Merging failed, $current into $next ------------"
               echo "------------ Conflict Files ------------"
-              echo $(git ls-files -u | cut -f 2 | sort -u) >> $GITHUB_OUTPUT
+              echo "$(git ls-files -u | cut -f 2 | sort -u)" >> $GITHUB_OUTPUT
               exit 1
             fi
             git push origin "$next"
