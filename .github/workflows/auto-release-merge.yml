@@ -18,6 +18,7 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Action"
+
       - name: Merge branches in sequence
         run: |
           branches_string="${{ vars.MERGE_BRANCHES }}"
@@ -30,6 +31,11 @@ jobs:
             git fetch origin "$current"
             git fetch origin "$next"
             git checkout "$next"
-            git merge origin/"$current" || { echo "------------ Merging failed, stopping... ------------"; exit 1; }
+            if ! git merge origin/"$current"; then
+              echo "------------ Merging failed, $current into $next ------------"
+              echo "------------ Conflict Details ------------"
+              git ls-files -u | cut -f 2 | sort -u
+              exit 1
+            fi
             git push origin "$next"
           done
