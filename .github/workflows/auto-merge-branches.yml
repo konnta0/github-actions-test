@@ -39,7 +39,7 @@ jobs:
             if ! git merge origin/"$current"; then
               echo "------------ Merging failed, $current into $next ------------"
               echo "------------ Conflict Files ------------"
-              echo "$(git ls-files -u | cut -f 2 | sort -u)" >> $GITHUB_OUTPUT
+              echo "$(git ls-files -u | cut -f 2 | sort -u)"
 
               IFS=$'\n' read -r -a conflict_files_array <<< "$(git ls-files -u | cut -f 2 | sort -u)"
               conflict_files_csv=$(IFS=','; echo "${conflict_files_array[*]}")
