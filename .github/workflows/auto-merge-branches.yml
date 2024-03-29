@@ -62,7 +62,7 @@ jobs:
     needs: merge-branches
     if: failure()
     steps:
-      - name: Aggregate failed message
+      - name: Aggregate failed messages
         run: |
           echo "Merging failed, please resolve conflicts and try again"
           echo "------------ Merge Branches ------------"
