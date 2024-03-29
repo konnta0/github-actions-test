@@ -24,6 +24,7 @@ jobs:
 
       - name: Merge branches in sequence
         id: merge-branches
+        continue-on-error: true
         run: |
           branches_string="${{ vars.MERGE_BRANCHES }}"
           IFS=',' read -ra branches <<< "$branches_string"  
@@ -40,16 +41,21 @@ jobs:
               echo "------------ Conflict Files ------------"
               IFS=$'\n' read -r -a conflict_files_array <<< "$(git ls-files -u | cut -f 2 | sort -u)"
               conflict_files_csv=$(IFS=','; echo "${conflict_files_array[*]}")
-              echo "conflict_files=$conflict_files_csv" >> $GITHUB_ENV
+              echo "conflict_files=$conflict_files_csv" >> $GITHUB_OUTPUT
 
               echo $conflict_files_csv
 
               echo "------------ Conflict Branches ------------"
-              echo "conflict_branches=$current into $next" >> $GITHUB_ENV
+              echo "conflict_branches=$current into $next" >> $GITHUB_OUTPUT
               exit 1
             fi
             git push origin "$next"
           done
+
+      - name: Error handling
+        if: ${{ steps.merge-branches == 'failure' }}
+        run: |
+          exit 1  
 
   merge-failed:
     runs-on: ubuntu-latest
@@ -59,6 +65,7 @@ jobs:
       - name: echo failed message
         run: |
           echo "Merging failed, please resolve conflicts and try again"
+          echo "${{ vars.MERGE_BRANCHES }}"
           echo "${{ needs.merge-branches.outputs.conflict_branches }}"
           IFS=',' read -r -a conflict_files <<< "${{ needs.merge-branches.outputs.conflict_files }}"
           for file in "${conflict_files[@]}"; do
