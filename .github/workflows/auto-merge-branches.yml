@@ -65,12 +65,12 @@ jobs:
       - name: Correct failed message
         run: |
           echo "Merging failed, please resolve conflicts and try again"
-          $branches="$(echo "${{ vars.MERGE_BRANCHES }}" | tr ',' '->')"
+          branches="$(echo "${{ vars.MERGE_BRANCHES }}" | tr ',' '->')"
           echo "$branches"
 
           echo "${{ needs.merge-branches.outputs.conflict_branches }}"
 
-          $files="$(echo "${{ needs.merge-branches.outputs.conflict_files }}" | tr ',' '\n')"
+          files="$(echo "${{ needs.merge-branches.outputs.conflict_files }}" | tr ',' '\n')"
 
           echo "$files"
           #IFS=',' read -r -a conflict_files <<< "${{ needs.merge-branches.outputs.conflict_files }}"
