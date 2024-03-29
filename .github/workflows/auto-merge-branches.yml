@@ -39,8 +39,6 @@ jobs:
             if ! git merge origin/"$current"; then
               echo "------------ Merging failed, $current into $next ------------"
               echo "------------ Conflict Files ------------"
-              echo "$(git ls-files -u | cut -f 2 | sort -u)"
-
               readarray -t conflict_files_array <<< "$(git ls-files -u | cut -f 2 | sort -u)"
               conflict_files_csv=$(IFS=','; echo "${conflict_files_array[*]}")
               echo "conflict_files=$conflict_files_csv" >> $GITHUB_OUTPUT
@@ -67,10 +65,15 @@ jobs:
       - name: Correct failed message
         run: |
           echo "Merging failed, please resolve conflicts and try again"
-          $branches = "$(echo "${{ vars.MERGE_BRANCHES }}" | tr ',' '->')"
-          echo "Failed to merge $branches"
+          $branches="$(echo "${{ vars.MERGE_BRANCHES }}" | tr ',' '->')"
+          echo "$branches"
+
           echo "${{ needs.merge-branches.outputs.conflict_branches }}"
-          IFS=',' read -r -a conflict_files <<< "${{ needs.merge-branches.outputs.conflict_files }}"
-          for file in "${conflict_files[@]}"; do
-            echo "$file"
-          done
+
+          $files="$(echo "${{ needs.merge-branches.outputs.conflict_files }}" | tr ',' '\n')"
+
+          echo "$files"
+          #IFS=',' read -r -a conflict_files <<< "${{ needs.merge-branches.outputs.conflict_files }}"
+          #for file in "${conflict_files[@]}"; do
+          #  echo "$file"
+          #done
