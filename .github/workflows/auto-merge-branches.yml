@@ -13,7 +13,7 @@ jobs:
       conflict_branches: ${{ steps.merge-branches.outputs.conflict_branches }}
       conflict_files: ${{ steps.merge-branches.outputs.conflict_files }}
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: '0'
@@ -39,6 +39,8 @@ jobs:
             if ! git merge origin/"$current"; then
               echo "------------ Merging failed, $current into $next ------------"
               echo "------------ Conflict Files ------------"
+              echo "$(git ls-files -u | cut -f 2 | sort -u)" >> $GITHUB_OUTPUT
+
               IFS=$'\n' read -r -a conflict_files_array <<< "$(git ls-files -u | cut -f 2 | sort -u)"
               conflict_files_csv=$(IFS=','; echo "${conflict_files_array[*]}")
               echo "conflict_files=$conflict_files_csv" >> $GITHUB_OUTPUT
@@ -53,7 +55,7 @@ jobs:
           done
 
       - name: Error handling
-        if: ${{ steps.merge-branches == 'failure' }}
+        if: ${{ steps.merge-branches.outcome == 'failure' }}
         run: |
           exit 1  
 
@@ -62,7 +64,7 @@ jobs:
     needs: merge-branches
     if: failure()
     steps:
-      - name: echo failed message
+      - name: Correct failed message
         run: |
           echo "Merging failed, please resolve conflicts and try again"
           echo "${{ vars.MERGE_BRANCHES }}"
