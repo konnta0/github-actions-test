@@ -75,7 +75,7 @@ jobs:
                 echo "PR is not yet mergeable, waiting..."
                 sleep 10
               done
-
+              gh pr review --approve --body "Auto approved"
               gh pr merge --merge --auto "$number"
             fi
             #git push origin "$next"
