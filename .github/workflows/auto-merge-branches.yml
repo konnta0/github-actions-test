@@ -56,11 +56,14 @@ jobs:
               exit 1
             fi
 
-            diff=$(git diff origin/"$current" --name-only | wc -l)
+            diff=$(git diff origin/"$next" --name-only | wc -l)
+            echo "------------ diff: $diff ------------"
             if [ "$diff" -gt 0 ]; then
               $pr_url=$(gh pr create --base "$next" --head "$current" --title "Merge $current into $next" --body "Merge $current into $next" -l "auto-approve")
+              echo "------------ pr_url: $pr_url ------------"
+
               number=$(echo $pr_url | cut -d'/' -f7)
-              echo "------------ $pr_url ------------"
+              echo "------------ number: $number ------------"
 
               # Wait for PR to can be margable
               while true; do
