@@ -65,6 +65,7 @@ jobs:
               echo "------------ number: $number ------------"
 
               gh pr edit $number --add-label "auto-approve"
+              gh pr review --approve --body "Auto approved"
 
               # Wait for PR to can be margable
               while true; do
