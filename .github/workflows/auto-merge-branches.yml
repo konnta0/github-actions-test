@@ -60,7 +60,6 @@ jobs:
             echo "------------ diff: $diff ------------"
             if [ "$diff" -gt 0 ]; then
               pr_url=$(gh pr create --base "$next" --head "$current" --title "Merge $current into $next" --body "Merge $current into $next" -l "auto-approve")
-              echo "------------ pr_url: $pr_url ------------"
 
               number=$(echo $pr_url | cut -d'/' -f7)
               echo "------------ number: $number ------------"
