@@ -68,13 +68,16 @@ jobs:
 
               # Wait for PR to can be margable
               while true; do
-                pr_state=$(gh api repos/:owner/:repo/pulls/$number | jq -r .mergeable)
-                echo "------------ pr_state: $pr_state ------------"
-                if [[ "$pr_state" == "true" ]]; then
+                approved_reviews=$(gh api repos/:owner/:repo/pulls/$number/reviews --jq '[.[] | select(.state == "APPROVED")] | length')
+                if [[ "$approved_reviews" -ge 1 ]]; then
+                  echo "The PR has been approved at least once."
                   break
+                else
+                  echo "The PR has not been approved yet."
+                  echo "PR is not yet mergeable, waiting..."
+                  sleep 10
                 fi
-                echo "PR is not yet mergeable, waiting..."
-                sleep 10
+
               done
               gh pr merge --merge "$number"
             fi
