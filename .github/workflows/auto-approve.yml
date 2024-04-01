@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    if: github.event.label.name == 'auto-approve' && github.event.pull_request.user.login == 'github-actions[bot]'
+    if: github.event.label.name == 'auto-approve'
     steps:
       - name: Review
         uses: hmarr/auto-approve-action@v3
