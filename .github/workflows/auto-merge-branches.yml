@@ -76,7 +76,7 @@ jobs:
                 sleep 10
               done
 
-              gh pr merge --merge --squash --auto "$number"
+              gh pr merge --merge --auto "$number"
             fi
             #git push origin "$next"
           done
