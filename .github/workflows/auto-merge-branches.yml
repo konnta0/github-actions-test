@@ -30,7 +30,7 @@ jobs:
         id: merge-branches
         continue-on-error: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           branches_string="${{ vars.MERGE_BRANCHES }}"
           IFS=',' read -ra branches <<< "$branches_string"  
@@ -65,7 +65,6 @@ jobs:
               echo "------------ number: $number ------------"
 
               gh pr edit $number --add-label "auto-approve"
-              gh pr review --approve --body "Auto approved"
 
               # Wait for PR to can be margable
               while true; do
@@ -76,7 +75,6 @@ jobs:
                 echo "PR is not yet mergeable, waiting..."
                 sleep 10
               done
-              gh pr review --approve --body "Auto approved"
               gh pr merge --merge --auto "$number"
             fi
             #git push origin "$next"
