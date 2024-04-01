@@ -13,6 +13,10 @@ jobs:
       conflict_branches: ${{ steps.merge-branches.outputs.conflict_branches }}
       conflict_files: ${{ steps.merge-branches.outputs.conflict_files }}
     steps:
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install jq
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -54,8 +58,9 @@ jobs:
 
             diff=$(git diff origin/"$current" --name-only | wc -l)
             if [ "$diff" -gt 0 ]; then
-              $pr_url=$(gh pr create --base "$next" --head "$current" --title "Merge $current into $next" --body "Merge $current into $next")
+              $pr_url=$(gh pr create --base "$next" --head "$current" --title "Merge $current into $next" --body "Merge $current into $next" -l "auto-approve")
               number=$(echo $pr_url | cut -d'/' -f7)
+              echo "------------ $pr_url ------------"
 
               # Wait for PR to can be margable
               while true; do
