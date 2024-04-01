@@ -1,0 +1,95 @@
+name: Auto Merge branches
+
+on:
+  # push:
+  #   branches:
+  #     - release/*
+  workflow_dispatch: 
+
+jobs:
+  merge-branches:
+    runs-on: ubuntu-latest
+    outputs:
+      conflict_branches: ${{ steps.merge-branches.outputs.conflict_branches }}
+      conflict_files: ${{ steps.merge-branches.outputs.conflict_files }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+      - name: Set e-mail and username
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Action"
+
+      - name: Merge branches in sequence
+        id: merge-branches
+        continue-on-error: true
+        run: |
+          branches_string="${{ vars.MERGE_BRANCHES }}"
+          IFS=',' read -ra branches <<< "$branches_string"  
+          for ((i = 0; i < ${#branches[@]} - 1; i++)); do
+            current="${branches[i]}"
+            next="${branches[i+1]}"
+            
+            echo "------------ Merging $current into $next ------------"
+            git fetch origin "$current"
+            git fetch origin "$next"
+            git checkout "$next"
+            if ! git merge origin/"$current"; then
+              echo "------------ Merging failed, $current into $next ------------"
+              echo "------------ Conflict Branches ------------"
+              echo "conflict_branches=$current into $next" >> $GITHUB_OUTPUT
+
+              echo "------------ Conflict Files ------------"
+              readarray -t conflict_files_array <<< "$(git ls-files -u | cut -f 2 | sort -u)"
+              conflict_files_csv=$(IFS=','; echo "${conflict_files_array[*]}")
+              echo "conflict_files=$conflict_files_csv" >> $GITHUB_OUTPUT
+
+              echo $conflict_files_csv
+              exit 1
+            fi
+
+            diff=$(git diff origin/"$current" --name-only | wc -l)
+            if [ "$diff" -gt 0 ]; then
+              $pr_url=$(gh pr create --base "$next" --head "$current" --title "Merge $current into $next" --body "Merge $current into $next")
+              number=$(echo $pr_url | cut -d'/' -f7)
+
+              # Wait for PR to can be margable
+              while true; do
+                pr_state=$(gh api repos/:owner/:repo/pulls/$number | jq -r .mergeable)
+                if [[ "$pr_state" == "true" ]]; then
+                  break
+                fi
+                echo "PR is not yet mergeable, waiting..."
+                sleep 10
+              done
+
+              gh pr merge --merge --squash --auto "$number"
+            fi
+            #git push origin "$next"
+          done
+
+      - name: Error handling
+        if: ${{ steps.merge-branches.outcome == 'failure' }}
+        run: |
+          exit 1  
+
+  merge-failed:
+    runs-on: ubuntu-latest
+    needs: merge-branches
+    if: failure()
+    steps:
+      - name: Aggregate failed messages
+        run: |
+          echo "Merging failed, please resolve conflicts and try again"
+          echo "------------ Merge Branches ------------"
+          branches="$(echo "${{ vars.MERGE_BRANCHES }}" | sed 's/,/->/g')"
+          echo "$branches"
+
+          echo "------------ Conflict Branches ------------"
+          echo "${{ needs.merge-branches.outputs.conflict_branches }}"
+
+          files="$(echo "${{ needs.merge-branches.outputs.conflict_files }}" | tr ',' '\n')"
+          echo "------------ Conflict Files ------------"
+          echo "$files"
