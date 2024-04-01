@@ -1,0 +1,19 @@
+name: auto-approve
+
+on:
+  pull_request:
+    types: 
+      - labeled
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    if: github.event.label.name == 'auto-approve' && github.event.pull_request.user.login == 'github-actions[bot]'
+    steps:
+      - name: Review
+        uses: hmarr/auto-approve-action@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
