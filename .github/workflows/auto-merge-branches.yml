@@ -49,7 +49,25 @@ jobs:
               echo $conflict_files_csv
               exit 1
             fi
-            git push origin "$next"
+
+            diff=$(git diff origin/"$current" --name-only | wc -l)
+            if [ "$diff" -gt 0 ]; then
+              $pr_url=$(gh pr create --base "$next" --head "$current" --title "Merge $current into $next" --body "Merge $current into $next")
+              number=$(echo $pr_url | cut -d'/' -f7)
+
+              # Wait for PR to can be margable
+              while true; do
+                pr_state=$(gh api repos/:owner/:repo/pulls/$number | jq -r .mergeable)
+                if [[ "$pr_state" == "true" ]]; then
+                  break
+                fi
+                echo "PR is not yet mergeable, waiting..."
+                sleep 10
+              done
+
+              gh pr merge --merge --squash --auto "$number"
+            fi
+            #git push origin "$next"
           done
 
       - name: Error handling
