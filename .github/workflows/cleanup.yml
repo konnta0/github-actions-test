@@ -9,13 +9,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Run delete-old-branches-action
+        id: delete-old-branches
         uses: beatlabs/delete-old-branches-action@v0.0.10
         with:
           repo_token: ${{ github.token }}
-          date: '1 day ago'
           dry_run: true
+          date: '1 days ago'
+          default_branches: develop
           delete_tags: true
-          minimum_tags: 10
+          minimum_tags: 5
           extra_protected_branch_regex: ^release.*
           extra_protected_tag_regex: '^prod.*|^staging.*'
           exclude_open_pr_branches: true
+      - name: Get the output
+        run: |
+          echo "Deleted branches(was_dry_run): ${{ steps.delete-old-branches.outputs.was_dry_run }}"
+          echo "Deleted branches: ${{ steps.delete-old-branches.outputs.deleted_branches }}"
