@@ -18,7 +18,7 @@ jobs:
           default_branches: develop
           delete_tags: true
           minimum_tags: 5
-          extra_protected_branch_regex: ^release.*
+          extra_protected_branch_regex: ^release.*|^main
           extra_protected_tag_regex: '^prod.*|^staging.*'
           exclude_open_pr_branches: true
       - name: Get the output
