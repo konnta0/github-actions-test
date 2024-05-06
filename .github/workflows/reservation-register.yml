@@ -1,0 +1,34 @@
+name: Reservation/Register
+on:
+  workflow_dispatch:
+    inputs:
+      reserve-at:
+        description: 'Date and time to reserve at'
+        required: true
+        default: '2022-01-01T00:00:00Z'
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: validate
+        run: |
+          echo "Reserve at: ${{ github.event.inputs.reserve-at }}"
+          echo "Current time: $(date -u)"
+          if [ "$(date -u +%s)" -gt "$(date -u -d "${{ github.event.inputs.reserve-at }}" +%s)" ]; then
+            echo "Reservation time is in the past"
+            exit 1
+          fi
+          echo "Reservation time is in the future"
+
+      - name: install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install jq
+
+      - name: reserve to github issue
+        run: |
+          gh issue create --title "Reservation at ${{ github.event.inputs.reserve-at }}" --body "Reservation at ${{ github.event.inputs.reserve-at }}" --label "reservation" --assignee "$(gh api user | jq -r .login)"
