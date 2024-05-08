@@ -12,6 +12,9 @@ env:
 
 jobs:
   action:
+    permissions:
+      contents: read
+      issues: write
     runs-on: ubuntu-latest
     steps:
       - name: validate
