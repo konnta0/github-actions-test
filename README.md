@@ -1,1 +1,1 @@
-# auto-merge-action-test
+# GitHub Actions test repository
