@@ -14,4 +14,4 @@ jobs:
       - run: |
           git fetch origin
           git checkout -b test-branch-${{ github.run_number }} origin/main
-          git push origin test-branch-${{ github.run_number }}
+          git push -u origin test-branch-${{ github.run_number }}
