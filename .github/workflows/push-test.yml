@@ -1,0 +1,17 @@
+name: Push Test
+on:
+  workflow_dispatch:
+jobs:
+  housekeeping:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          git fetch origin
+          git checkout -b test-branch-${{ github.run_number }} origin/main
+          git push origin test-branch-${{ github.run_number }}
