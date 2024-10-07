@@ -17,7 +17,7 @@ jobs:
       id: extract
       run: |
         PR_TITLE="${{ github.event.pull_request.title }}"
-        NUMBERS=$(echo "$PR_TITLE" | grep -oE '#[0-9]+' | tr '\n' ' ')
+        NUMBERS=$(echo "$PR_TITLE" | grep -oE '#[0-9]+' | tr -d '#')
         if [ -z "$NUMBERS" ]; then
           echo "numbers=[]" >> $GITHUB_OUTPUT
         else
