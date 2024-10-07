@@ -1,0 +1,42 @@
+name: PR Commenter
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  extract-numbers:
+    runs-on: ubuntu-latest
+    outputs:
+      numbers: ${{ steps.extract.outputs.numbers }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Extract numbers from PR title
+      id: extract
+      run: |
+        PR_TITLE=$(jq -r '.pull_request.title' "$GITHUB_EVENT_PATH")
+        NUMBERS=$(echo "$PR_TITLE" | grep -oE '#[0-9]+' | tr '\n' ' ')
+        echo "::set-output name=numbers::$(echo $NUMBERS | tr ' ' ',')"
+
+  comment:
+    needs: extract-numbers
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        number: ${{ fromJson(needs.extract-numbers.outputs.numbers) }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Comment on PR
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        PR_NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
+        COMMENT_BODY="The PR title contains the number: ${{ matrix.number }}"
+        curl -H "Authorization: token $GITHUB_TOKEN" \
+             -X POST \
+             -d "{\"body\": \"$COMMENT_BODY\"}" \
+             "https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUMBER/comments"
