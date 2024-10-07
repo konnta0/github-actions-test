@@ -16,12 +16,12 @@ jobs:
     - name: Extract numbers from PR title
       id: extract
       run: |
-        PR_TITLE=${{ github.event.pull_request.title }}
-        NUMBERS=$(echo "$PR_TITLE" | grep -oE '#[0-9]+' | tr '\n' ' ')
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        NUMBERS=$(echo "$PR_TITLE" | grep -oE '#[0-9]+' | tr -d '#')
         if [ -z "$NUMBERS" ]; then
-          echo "::set-output name=numbers::[]"
+          echo "numbers=[]" >> $GITHUB_OUTPUT
         else
-          echo "::set-output name=numbers::[$(echo $NUMBERS | tr ' ' ',')]"
+          echo "numbers=[$(echo $NUMBERS | tr ' ' ',')]" >> $GITHUB_OUTPUT
         fi
 
   comment:
