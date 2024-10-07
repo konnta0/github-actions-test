@@ -18,7 +18,11 @@ jobs:
       run: |
         PR_TITLE=$(jq -r '.pull_request.title' "$GITHUB_EVENT_PATH")
         NUMBERS=$(echo "$PR_TITLE" | grep -oE '#[0-9]+' | tr '\n' ' ')
-        echo "::set-output name=numbers::$(echo $NUMBERS | tr ' ' ',')"
+        if [ -z "$NUMBERS" ]; then
+          echo "::set-output name=numbers::[]"
+        else
+          echo "::set-output name=numbers::[$(echo $NUMBERS | tr ' ' ',')]"
+        fi
 
   comment:
     needs: extract-numbers
